@@ -7,17 +7,14 @@ python3实现检查网页中的暗链
 ## 关键字
 
 自己可以根据想要检查的内容在根目录的rules.txt里面添加
+![image](https://user-images.githubusercontent.com/118233720/204189237-04028bf8-93d6-48d9-968a-02c92a48251b.png)
 
-## ![image-20221128113128787](C:\Users\pantom\AppData\Roaming\Typora\typora-user-images\image-20221128113128787.png)
 
+### 前置条件
 需要安装chrome浏览器
 
-
-
 ## 脚本使用
-
 参数：
-
 ```
 python39.exe .\aljcscan.py -h
 usage: aljcscan.py [-h] [--targets TARGETS] [--files FILES] [--outname OUTNAME] [--Thread THREAD] [--aljc ALJC]
@@ -72,17 +69,16 @@ optional arguments:
 ```
 python39.exe .\aljcscan.py --targets .\targets.txt --aljc True
 ```
+![image](https://user-images.githubusercontent.com/118233720/204189349-f5b995b4-7ce1-4cd5-9fd6-d0261294b0ef.png)
 
-![image-20221128112842330](C:\Users\pantom\AppData\Roaming\Typora\typora-user-images\image-20221128112842330.png)
+
 
 ### 爬虫各个URL后进行检查
 
 ```
 python39.exe .\aljcscan.py --targets .\targets.txt --aljcall True --Thread 20
 ```
-
-![image-20221128112952392](C:\Users\pantom\AppData\Roaming\Typora\typora-user-images\image-20221128112952392.png)
-
+![image](https://user-images.githubusercontent.com/118233720/204189370-3394e9c3-aaaa-41d2-9725-c0d90c66717f.png)
 
 
 ## 输出
@@ -90,8 +86,8 @@ python39.exe .\aljcscan.py --targets .\targets.txt --aljcall True --Thread 20
 输入到当前目录 result.txt
 
 有一些相关的网站会误报需要自己识别一下。比如下面百度健康，匹配到一些敏感关键字，彩票网站会匹配到一些博彩相关。
+![image](https://user-images.githubusercontent.com/118233720/204189385-f0b7363d-4600-4c34-85a2-4bf2f4b7f48e.png)
 
-![image-20221128113103015](C:\Users\pantom\AppData\Roaming\Typora\typora-user-images\image-20221128113103015.png)
 
 ## 参考
 
