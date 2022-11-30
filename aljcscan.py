@@ -15,6 +15,8 @@ from termcolor import cprint
 from urllib.parse import urlparse
 warnings.filterwarnings(action='ignore')
 requests.DEFAULT_RETRIES = 6
+from selenium.webdriver import Chrome
+from selenium.webdriver.chrome.options import Options
 # warnings.filterwarnings(action='ignore')
 
 reconpath = "recon_domains"
@@ -32,6 +34,17 @@ anew_file = "_anew_file.txt"
 title_file = "_title.txt"
 
 
+
+opt = Options()
+opt.add_argument('--no-sandbox')                # 解决DevToolsActivePort文件不存在的报错
+opt.add_argument('window-size=1920x3000')       # 设置浏览器分辨率
+opt.add_argument('--disable-gpu')               # 谷歌文档提到需要加上这个属性来规避bug
+opt.add_argument('--hide-scrollbars')           # 隐藏滚动条，应对一些特殊页面
+opt.add_argument('blink-settings=imagesEnabled=false')      # 不加载图片，提升运行速度
+opt.add_argument('--headless')                  # 浏览器不提供可视化界面。Linux下如果系统不支持可视化不加这条会启动失败
+opt.add_experimental_option('excludeSwitches', ['enable-logging']) #关闭DevTools listening on ws://127.0.0.1 日志
+ # opt.binary_location = r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" # 手动指定使用的浏览器位置
+
 def radSpider(targetDomain,saveDir):
     #爬虫
     # scanCommand = "echo {0}|./httpx -silent -mc 200,301,302 -threads -1000 |./hakrawler -d 2 -subs > {1}".format(targetDomain, saveDir+"domain_js.txt")
@@ -42,14 +55,18 @@ def radSpider(targetDomain,saveDir):
     return
 
 def All_JC(urls):
-    headers={
-        'User-Agent':'Mozilla/5.0 (compatible;Baiduspider-render/2.0; +http://www.baidu.com/search/spider.html)',
-        'Referer':'https://www.baidu.com/'
-    }
+ 
     for url in urls:
         try:
-            res=requests.get(url,headers=headers,timeout=10,verify=False).text
-            respose=html.unescape(res)
+            # res=requests.get(url,headers=headers,timeout=10,verify=False).text
+            # respose=html.unescape(res)
+            driver = Chrome(options=opt)    # 创建无界面对象 
+            driver.get(url)
+            driver.implicitly_wait(8) 
+            # print(driver.current_window_handle) 
+            respose=driver.page_source
+            # print(driver.page_source) 
+            
             rules = []#匹配到的标签
             host=True
             for re_rules in re_rules_list:
@@ -59,12 +76,13 @@ def All_JC(urls):
                     host=False
             if host ==False:
                 with open("result.txt", "a") as file:
-                    file.write('地址：{}\n匹配项：{}\n\n'.format(url,rules))
+                    file.write('\t地址：{}\n\t匹配项：{}\n\n'.format(url,rules))
                 print('{}:{} 存在暗链！'.format(threading.current_thread().name,url))
             else:
                 print('{}:{} 未检测出'.format(threading.current_thread().name,url))
         except :
             print('{}:{}请求出错'.format(threading.current_thread().name,url))
+            driver.close()
 
 RootPath = os.path.dirname(os.path.abspath(__file__))
 savePath = "{}/{}".format(RootPath,reconpath)
@@ -86,7 +104,7 @@ $$  __$$ |$$ |$$ |$$ |       \____$$\ $$ |     $$  __$$ |$$ |  $$ |
         $$\   $$ |                                                 
         \$$$$$$  |                                                 
          \______/ 
-         Author:tom v1.0
+         Author:tom v1.1
     '''
     return logo
 
@@ -103,13 +121,13 @@ def main():
     parser.add_argument('--outname', default='test',
                         help='Save outname') 
     parser.add_argument('--Thread', action='store',
-                        type=int, default=10,    
+                        type=int, default=20,    
                         help='Thread') 
     parser.add_argument('--aljc', action='store',
                         type=bool, default=False,
                         help='Scan for sensitive words')      
     parser.add_argument('--aljcall', action='store',
-                        type=bool, default=False,
+                        type=bool, default=True,
                         help='Scan for all  sensitive words')        
 
 
@@ -131,6 +149,8 @@ def main():
             with open (args.targets, "r") as f:
                 for i in f.readlines():
                     domain = i.strip("\n")
+                    with open("result.txt", "a") as file:
+                        file.write('目标地址：------------------（{}）------------------\n\n'.format(domain))
                     radSpider(domain,saveDir)
                     if os.path.exists(saveDir+"domain_js.txt"):
                         with open(saveDir+"domain_js.txt", 'r') as f:
