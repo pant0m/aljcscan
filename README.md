@@ -23,7 +23,7 @@ python3实现检查网页中的暗链
 
 ## 2.报告输出
 如果是外链查出来还要去找对应扫描的目标网站，稍微优化了一下
-![image](https://user-images.githubusercontent.com/118233720/204705091-a0c3688c-ba5f-4823-8e59-ccdfbd6d8708.png)
+
 
 ## 关键字
 
