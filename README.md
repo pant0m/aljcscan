@@ -108,7 +108,7 @@ python39.exe .\aljcscan.py --targets .\targets.txt --aljcall True --Thread 20
 输入到当前目录 result.txt
 
 有一些相关的网站会误报需要自己识别一下。比如下面百度健康，匹配到一些敏感关键字，彩票网站会匹配到一些博彩相关。
-![image](https://user-images.githubusercontent.com/118233720/204189385-f0b7363d-4600-4c34-85a2-4bf2f4b7f48e.png)
+
 
 
 ## 参考
