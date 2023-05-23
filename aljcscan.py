@@ -25,65 +25,49 @@ rapiddns_file = "_rapiddns.txt"
 sub_file_ok = "_sub_ok.txt"
 # 去重后文件
 anew_file = "_anew_file.txt"
-# 各个域名对应标题、状态吗等信息文件
+# 各个域名对应标题、状态码等信息文件
 title_file = "_title.txt"
 
-
-
 opt = Options()
-opt.add_argument('--no-sandbox')                # 解决DevToolsActivePort文件不存在的报错
-opt.add_argument('window-size=1920x3000')       # 设置浏览器分辨率
-opt.add_argument('--disable-gpu')               # 谷歌文档提到需要加上这个属性来规避bug
-opt.add_argument('--hide-scrollbars')           # 隐藏滚动条，应对一些特殊页面
-opt.add_argument('blink-settings=imagesEnabled=false')      # 不加载图片，提升运行速度
-opt.add_argument('--headless')                  # 浏览器不提供可视化界面。Linux下如果系统不支持可视化不加这条会启动失败
-opt.add_experimental_option('excludeSwitches', ['enable-logging']) #关闭DevTools listening on ws://127.0.0.1 日志
-# opt.binary_location = r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" # 手动指定使用的浏览器位置
-# chromedriver_path = 'D:\Python\CREATE_PYTHON_ENV\Spider_env\chromedriver.exe'
+opt.add_argument('--no-sandbox')  # 解决DevToolsActivePort文件不存在的报错
+opt.add_argument('window-size=1920x3000')  # 设置浏览器分辨率
+opt.add_argument('--disable-gpu')  # 谷歌文档提到需要加上这个属性来规避bug
+opt.add_argument('--hide-scrollbars')  # 隐藏滚动条，应对一些特殊页面
+opt.add_argument('blink-settings=imagesEnabled=false')  # 不加载图片，提升运行速度
+opt.add_argument('--headless')  # 浏览器不提供可视化界面。Linux下如果系统不支持可视化不加这条会启动失败
+opt.add_experimental_option('excludeSwitches', ['enable-logging'])  # 关闭DevTools listening on ws://127.0.0.1 日志
 
-def radSpider(targetDomain,saveDir):
-    #爬虫
-    # scanCommand = "echo {0}|./httpx -silent -mc 200,301,302 -threads -1000 |./hakrawler -d 2 -subs > {1}".format(targetDomain, saveDir+"domain_js.txt")
-    scanCommand = "echo {0}| .\httpx.exe -silent -mc 200,301,302 -threads -1000 |.\hakrawler.exe -d 2 -subs > {1}".format(targetDomain, saveDir+"domain_js.txt")
+def radSpider(targetDomain, saveDir):
+    # 爬虫
+    scanCommand = "echo {0}|./httpx -silent -mc 200,301,302 -threads -1000 |./hakrawler -d 2 -subs > {1}".format(targetDomain, saveDir+"domain_js.txt")
     print("\033[1;33m command>>>>>> \033[0m","\033[1;33m"+ scanCommand +"\033[0m")
-    finderjs_result = subprocess.Popen(scanCommand, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,shell=True)
+    finderjs_result = subprocess.Popen(scanCommand, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
     finderjs_result.wait()
-    return
 
 def All_JC(urls):
     for url in urls:
         try:
-            driver = Chrome(options=opt)    # 创建无界面对象 
-            #  driver = Chrome(executable_path=chromedriver_path,options=opt)    # 创建无界面对象
-            respose=driver.page_source
+            driver = Chrome(options=opt)  # 创建无界面对象
+            respose = driver.page_source
             driver.close()
-            rules = []#匹配到的标签
-            host=True
+            rules = []  # 匹配到的标签
+            host = True
             for re_rules in re_rules_list:
-                chashuibiao=re.findall(r'{}'.format(re_rules),respose,re.S|re.I)
-                if chashuibiao !=[]:
+                chashuibiao = re.findall(r'{}'.format(re_rules), respose, re.S | re.I)
+                if chashuibiao:
                     rules.append(re_rules)
-                    host=False
-            if host ==False:
+                    host = False
+            if host is False:
                 with open("result.txt", "a") as file:
-                    file.write('\t地址：{}\n\t匹配项：{}\n\n'.format(url,rules))
-                print('{}:{} 存在暗链！'.format(threading.current_thread().name,url))
+                    file.write('\t地址：{}\n\t匹配项：{}\n\n'.format(url, rules))
+                print('{}:{} 存在暗链！'.format(threading.current_thread().name, url))
             else:
-                print('{}:{} 未检测出'.format(threading.current_thread().name,url))
-            
-        except :
-            print('{}:{}请求出错'.format(threading.current_thread().name,url))
-            
-
-RootPath = os.path.dirname(os.path.abspath(__file__))
-savePath = "{}/{}".format(RootPath,reconpath)
-# saveXrayReport = '{}\\save\\xrayReport'.format(RootPath)
-
-targetFileName=""
-plugins=""
+                print('{}:{} 未检测出'.format(threading.current_thread().name, url))
+        except Exception as e:
+            print('{}:{}请求出错'.format(threading.current_thread().name, url))
 
 def logo():
-    logo='''
+    logo = '''
           $$\                                                      
           $$ |                                                     
  $$$$$$\  $$ |$$\  $$$$$$$\  $$$$$$$\  $$$$$$$\ $$$$$$\  $$$$$$$\  
@@ -95,13 +79,12 @@ $$  __$$ |$$ |$$ |$$ |       \____$$\ $$ |     $$  __$$ |$$ |  $$ |
         $$\   $$ |                                                 
         \$$$$$$  |                                                 
          \______/ 
-         Author:tom v1.1
+         Author:tom v1.2
     '''
     return logo
 
-with open('rules.txt', 'r',encoding='utf-8') as s:
-    re_rules_list = s.read().split('\n')  
-
+with open('rules.txt', 'r', encoding='utf-8') as s:
+    re_rules_list = s.read().split('\n')
 
 def main():
     parser = argparse.ArgumentParser(description='Process some integers.')
@@ -110,43 +93,41 @@ def main():
     parser.add_argument('--files', default='files',
                         help='Save subDomain info to Files')
     parser.add_argument('--outname', default='test',
-                        help='Save outname') 
+                        help='Save outname')
     parser.add_argument('--Thread', action='store',
-                        type=int, default=20,    
-                        help='Thread') 
+                        type=int, default=20,
+                        help='Thread')
     parser.add_argument('--aljc', action='store',
                         type=bool, default=False,
-                        help='Scan for sensitive words')      
+                        help='Scan for sensitive words')
     parser.add_argument('--aljcall', action='store',
                         type=bool, default=False,
-                        help='Scan for all  sensitive words')        
-
+                        help='Scan for all sensitive words')
 
     args = parser.parse_args()
     print(args.targets)
 
     try:
         print(logo())
-        saveDir = "{}/{}/{}/".format(RootPath,reconpath,args.files)
-        filepath = args.files
+        saveDir = "{}/{}/{}/".format(os.path.dirname(os.path.abspath(__file__)), reconpath, args.files)
 
         if args.aljc:
-            with open (args.targets, "r+") as f:
+            with open(args.targets, "r+") as f:
                 urls_list = f.read().split('\n')
                 All_JC(urls_list)
+
         if args.aljcall:
             xc = args.Thread
-
-            with open (args.targets, "r") as f:
+            with open(args.targets, "r") as f:
                 for i in f.readlines():
                     domain = i.strip("\n")
                     with open("result.txt", "a") as file:
                         file.write('目标地址：------------------（{}）------------------\n\n'.format(domain))
-                    radSpider(domain,saveDir)
-                    if os.path.exists(saveDir+"domain_js.txt"):
-                        with open(saveDir+"domain_js.txt", 'r') as f:
+                    radSpider(domain, saveDir)
+                    if os.path.exists(saveDir + "domain_js.txt"):
+                        with open(saveDir + "domain_js.txt", 'r') as f:
                             urls_list = f.read().split('\n')
-                            urls = []   
+                            urls = []
                             twoList = [[] for i in range(xc)]
                             for i, e in enumerate(urls_list):
                                 twoList[i % xc].append(e)
@@ -161,8 +142,6 @@ def main():
     except Exception as e:
         print(e)
         pass
-    return
 
 if __name__ == '__main__':
     main()
-
